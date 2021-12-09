@@ -48,7 +48,7 @@ void Utils::setExecDir()
     if(this->getIsWindows())
     {
         char buffer[MAX_PATH];
-        GetModuleFileNameA(NULL, buffer, MAX_PATH);
+        GetModuleFileNameA(nullptr, buffer, MAX_PATH);
         std::string::size_type pos = std::string(buffer).find_last_of(this->getSep());
         this->execDir = std::string(buffer).substr(0, pos);
     }
@@ -129,6 +129,7 @@ bool Utils::isFileOlderThanXDays(std::string const &fPath, int kdays)
         if(fctime < cutoffTimeT)
             return true;
     }
+
     return false;
 }
 
@@ -223,6 +224,7 @@ bool Utils::gzipFile(std::string &filePathIn, std::string &filePathOut)
             << err.what();
         return false;
     }
+
     return true;
 }
 
@@ -243,7 +245,7 @@ bool Utils::deleteFile(std::string &filePath)
             this->log("debug", msg.str());
             return false;
         }
-        else if(this->showLogDebug)
+        else if(this->getShowLogDebug())
         {
             msg << "["<<this->getIsoTimeStr()<<"]:"
                 << "[DEBUG]:File successfully deleted: "
@@ -261,6 +263,7 @@ bool Utils::deleteFile(std::string &filePath)
         this->log("error", msg.str());
         return false;
     }
+
     return true;
 }
 
