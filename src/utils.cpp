@@ -1,11 +1,12 @@
-#include "utils.h"
-#include "log.h"
+#include "utils.hpp"
+#include "log.hpp"
 #include <sys/stat.h>
 #include <fstream>
 #include <string_view>
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
+#include <regex>
 
 
 namespace ch = std::chrono;
@@ -62,10 +63,10 @@ void Utils::setExecFileName()
     if(this->getIsWindows())
     {
         char buffer[MAX_PATH];
-        GetModuleFileNameA(NULL, buffer, MAX_PATH);
+        GetModuleFileNameA(nullptr, buffer, MAX_PATH);
         std::string::size_type pos = std::string(buffer).find_last_of("\000");
         auto dir = std::string(buffer).substr(0, pos);
-        this->execFileName = dir.substr(dir.find_last_of(this->getSep()) + 1);
+        this->execFileName = dir.substr(dir.find_last_of(Utils::getSep()) + 1);
     }
     else
     {
@@ -78,14 +79,14 @@ void Utils::setExecFileName()
     }
 }
 
-void Utils::print(const std::string_view x) const
+void Utils::print(std::string_view x)
 {
     std::cout << x << std::endl;
 }
 
 bool Utils::isFileOlderThanXDays(std::string const &fPath, int kdays)
 {
-    struct stat fileInfo;
+    struct stat fileInfo{};
     const char *flPath = fPath.c_str();
     int statFile = stat(flPath, &fileInfo);
 
@@ -131,7 +132,7 @@ bool Utils::isFileOlderThanXDays(std::string const &fPath, int kdays)
     return false;
 }
 
-std::string Utils::getIsoTimeStr() const
+std::string Utils::getIsoTimeStr()
 {
     auto now = ch::system_clock::now();
     auto ms = ch::time_point_cast<ch::milliseconds>(now).time_since_epoch().count() % 1000;
@@ -143,18 +144,60 @@ std::string Utils::getIsoTimeStr() const
     return isoTime.str();
 }
 
-void Utils::get_ini_section()
+std::string Utils::get_ini_value(std::string const& section, std::string const& key)
 {
+    std::string value;
     std::stringstream appendSS;
-    appendSS << this->execDir << this->getSep() << "config" << this->getSep() << this->getCfgFileName();
+    appendSS << this->execDir << this->getSep() << this->getSep() << this->getCfgFileName();
     std::string configFile = appendSS.str();
 
-    this->log("info", "[Config file]: "+configFile);
+    this->log("debug", "[Config file]: "+configFile);
 
+    std::ifstream ifs(configFile);
+    if(!ifs.good()) throw std::exception();
 
+    static const std::regex comment_regex{R"x(\s*[;#])x"};
+    static const std::regex section_regex{R"x(\s*\[([^\]]+)\])x"};
+    static const std::regex value_regex{R"x(\s*(\S[^ \t=]*)\s*=\s*((\s?\S+)+)\s*$)x"};
+    std::string current_section;
+    std::smatch pieces;
+    bool sectionFound = false;
+    bool keyFound = false;
 
+    for (std::string line; std::getline(ifs, line);)
+    {
+        if (line.empty() || std::regex_match(line, pieces, comment_regex))
+        {
+            // skip comment lines and blank lines
+        }
+        else if (std::regex_match(line, pieces, section_regex))
+        {
+            if (pieces.size() == 2)
+            {
+                current_section = pieces[1].str();
+                if (pieces[1].str() == section)
+                    sectionFound = true;
+            }
+        }
+        else if (std::regex_match(line, pieces, value_regex))
+        {
+            if (pieces.size() == 4)
+            {
+                this->iniSections[current_section][pieces[1].str()] = pieces[2].str();
+                if (sectionFound && !keyFound)
+                {
+                    if (pieces[1].str() == key)
+                    {
+                        keyFound = true;
+                        value = pieces[2].str();
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
-
+    return value;
 }
 
 bool Utils::gzipFile(std::string &filePathIn, std::string &filePathOut)
@@ -197,16 +240,16 @@ bool Utils::deleteFile(std::string &filePath)
                 << "["<<filePath<<"]:"
                 << "[Error Number: " << ec.value() << "]: "
                 << ec.message();
-            //this->log("error", msg.str());
+            this->log("debug", msg.str());
             return false;
         }
-        //else if(log.getShowDebug())
-        //{
-        //    msg << "["<<this->getIsoTimeStr()<<"]:"
-        //        << "[DEBUG]:File successfully deleted: "
-        //        << filePath;
-        //    this->log("debug", msg.str());
-        //}
+        else if(this->showLogDebug)
+        {
+            msg << "["<<this->getIsoTimeStr()<<"]:"
+                << "[DEBUG]:File successfully deleted: "
+                << filePath;
+            this->log("debug", msg.str());
+        }
     }
     catch(fs::filesystem_error& err)
     {
@@ -237,7 +280,7 @@ void Utils::log(const char *level, std::string_view msg)
     int dtkLogFiles = this->getDaysToKeepLogFiles();
     bool debug = this->getShowLogDebug();
     Log log(debug, dtkLogFiles);
-    int levelInt = this->getHash(level);
+    unsigned int levelInt = this->getHash(level);
 
     switch(levelInt)
     {
@@ -253,7 +296,7 @@ void Utils::log(const char *level, std::string_view msg)
         case 217013051: // FATAL
            log.fatal(msg);
            break;
-        case -1406598161: // warning
+        case 2888369135: // warning
         case 47734607: // WARNING
            log.warning(msg);
            break;

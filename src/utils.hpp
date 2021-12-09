@@ -1,7 +1,7 @@
 #ifndef LOGS_UTILS_H
 #define LOGS_UTILS_H
 
-#include "constants.h"
+#include "constants.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -17,9 +17,9 @@ class Utils
     private:
         std::string execFileName{};
         std::string execDir{};
-        std::string logger{};
         int daysToKeepLogFiles{};
         bool showLogDebug{};
+        std::unordered_map<std::string, std::unordered_map<std::string, std::string> > iniSections;
         void setExecDir();
         void setExecFileName();
 
@@ -29,31 +29,28 @@ class Utils
         void inline setShowLogDebug(bool x){ this->showLogDebug = x; }
 		int inline getShowLogDebug() const{ return this->showLogDebug; }
 
+
     public:
         Utils();
-        Utils(bool);
+        explicit Utils(bool);
         Utils(bool, int);
         ~Utils();
 
-        void print(std::string_view const) const;
-        bool gzipFile(std::string&, std::string &);
+        void print(std::string_view);
+        bool gzipFile(std::string&, std::string&);
         bool deleteFile(std::string&);
         bool isFileOlderThanXDays(std::string const&, int);
-        const char* str2char(std::string str);
+        const char* str2char(std::string);
         unsigned int getHash(const char*, int);
-        void log(const char *level, std::string_view msg);
-        bool inline getIsWindows() const{ return IS_WINDOWS; }
-        char inline getSep() const{ return OS_SEP; }
-        std::string getIsoTimeStr() const;
-        std::string inline getVersion() const{ return VERSION; }
-        std::string inline getCfgFileName() const{ return CFG_FILENAME; }
+        void log(const char*, std::string_view);
+        bool inline getIsWindows() { return IS_WINDOWS; }
+        char inline getSep() { return OS_SEP; }
+        std::string getIsoTimeStr();
+        std::string inline getVersion() { return VERSION; }
+        std::string inline getCfgFileName() { return CFG_FILENAME; }
         std::string inline getExecFileName() const{ return this->execFileName; }
         std::string inline getExecDir() const{ return this->execDir; }
-
-
-
-
-        void get_ini_section();
+        std::string get_ini_value(std::string const&, std::string const&);
 
 
 

@@ -1,4 +1,4 @@
-#include "src/utils.h"
+#include "src/utils.hpp"
 
 int main(int argc, char **argv)
 {
@@ -14,10 +14,11 @@ int main(int argc, char **argv)
         }
 
         Utils utils(debug);
-        utils.log("info", "Iniciando v"  + utils.getVersion());
+        utils.log("warning", "Iniciando v"  + utils.getVersion());
 
-        utils.get_ini_section();
-
+        std::string days_to_keep_logs;
+        days_to_keep_logs = utils.get_ini_value("main", "days_to_keep_logs");
+        utils.log("warning", "days_to_keep_logs: " + days_to_keep_logs);
 
 
 

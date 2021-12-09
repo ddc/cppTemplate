@@ -1,9 +1,9 @@
-#include "log.h"
+#include "log.hpp"
 #include <time.h>
 #include <sys/stat.h>
 #include <charconv>
 #include <algorithm>
-#include "utils.h"
+#include "utils.hpp"
 
 namespace rg = std::ranges;
 namespace fs = std::filesystem;
