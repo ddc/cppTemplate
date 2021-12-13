@@ -7,6 +7,7 @@
 #include <vector>
 #include <sstream>
 #include <filesystem>
+#include <map>
 
 
 namespace fs = std::filesystem;
@@ -19,7 +20,6 @@ class Utils
         std::string execDir{};
         int daysToKeepLogFiles{};
         bool showLogDebug{};
-        std::unordered_map<std::string, std::unordered_map<std::string, std::string> > iniSections;
         void setExecDir();
         void setExecFileName();
 
@@ -51,7 +51,7 @@ class Utils
         std::string inline getExecFileName() const{ return this->execFileName; }
         std::string inline getExecDir() const{ return this->execDir; }
         std::string get_ini_value(std::string const&, std::string const&);
-
+        std::map<std::string, std::string> get_ini_section(std::string const&);
 
 
 

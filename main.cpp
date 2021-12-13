@@ -14,13 +14,7 @@ int main(int argc, char **argv)
         }
 
         Utils utils(debug);
-        utils.log("warning", "Iniciando v"  + utils.getVersion());
-
-        std::string days_to_keep_logs;
-        days_to_keep_logs = utils.get_ini_value("main", "days_to_keep_logs");
-        utils.log("warning", "days_to_keep_logs: " + days_to_keep_logs);
-
-
+        utils.log("info", "Iniciando v"  + utils.getVersion());
 
 
     }

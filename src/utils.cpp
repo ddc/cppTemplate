@@ -147,11 +147,14 @@ std::string Utils::getIsoTimeStr()
 
 std::string Utils::get_ini_value(std::string const& section, std::string const& key)
 {
+    // Example:
+    // std::string daysToKeepLogs;
+    // daysToKeepLogs = utils.get_ini_value("main", "daysToKeepLogs");
+
     std::string value;
     std::stringstream appendSS;
     appendSS << this->execDir << this->getSep() << this->getSep() << this->getCfgFileName();
     std::string configFile = appendSS.str();
-
     this->log("debug", "[Config file]: "+configFile);
 
     std::ifstream ifs(configFile);
@@ -160,10 +163,10 @@ std::string Utils::get_ini_value(std::string const& section, std::string const& 
     static const std::regex comment_regex{R"x(\s*[;#])x"};
     static const std::regex section_regex{R"x(\s*\[([^\]]+)\])x"};
     static const std::regex value_regex{R"x(\s*(\S[^ \t=]*)\s*=\s*((\s?\S+)+)\s*$)x"};
+    std::map<std::string, std::string> iniSection;
     std::string current_section;
     std::smatch pieces;
     bool sectionFound = false;
-    bool keyFound = false;
 
     for (std::string line; std::getline(ifs, line);)
     {
@@ -173,32 +176,68 @@ std::string Utils::get_ini_value(std::string const& section, std::string const& 
         }
         else if (std::regex_match(line, pieces, section_regex))
         {
-            if (pieces.size() == 2)
-            {
-                current_section = pieces[1].str();
-                if (pieces[1].str() == section)
-                    sectionFound = true;
-            }
+            current_section = pieces[1].str();
+            if (pieces.size() == 2 && pieces[1].str() == section && !sectionFound)
+                sectionFound = true;
         }
         else if (std::regex_match(line, pieces, value_regex))
         {
-            if (pieces.size() == 4)
+            if (pieces.size() == 4 && current_section == section && (pieces[1].str() == key))
             {
-                this->iniSections[current_section][pieces[1].str()] = pieces[2].str();
-                if (sectionFound && !keyFound)
-                {
-                    if (pieces[1].str() == key)
-                    {
-                        keyFound = true;
-                        value = pieces[2].str();
-                        break;
-                    }
-                }
+                value = pieces[2].str();
+                break;
             }
         }
     }
 
     return value;
+}
+
+
+std::map<std::string, std::string> Utils::get_ini_section(std::string const& section)
+{
+    // Example:
+    // auto iniSection = utils.get_ini_section("main");
+    // std::string daysToKeepLogs = iniSection.find("daysToKeepLogs")->second;
+
+    std::stringstream appendSS;
+    appendSS << this->execDir << this->getSep() << this->getSep() << this->getCfgFileName();
+    std::string configFile = appendSS.str();
+    this->log("debug", "[Config file]: "+configFile);
+
+    std::ifstream ifs(configFile);
+    if(!ifs.good()) throw std::exception();
+
+    static const std::regex comment_regex{R"x(\s*[;#])x"};
+    static const std::regex section_regex{R"x(\s*\[([^\]]+)\])x"};
+    static const std::regex value_regex{R"x(\s*(\S[^ \t=]*)\s*=\s*((\s?\S+)+)\s*$)x"};
+    std::map<std::string, std::string> iniSection;
+    std::string current_section;
+    std::smatch pieces;
+    bool sectionFound = false;
+
+    for (std::string line; std::getline(ifs, line);)
+    {
+        if (line.empty() || std::regex_match(line, pieces, comment_regex))
+        {
+            // skip comment lines and blank lines
+        }
+        else if (std::regex_match(line, pieces, section_regex))
+        {
+            current_section = pieces[1].str();
+            if (pieces.size() == 2 && pieces[1].str() == section && !sectionFound)
+                sectionFound = true;
+        }
+        else if (std::regex_match(line, pieces, value_regex))
+        {
+            if (pieces.size() == 4 && current_section == section)
+                iniSection[pieces[1].str()] = pieces[2].str();
+            else if (sectionFound)
+                break;
+        }
+    }
+
+    return iniSection;
 }
 
 bool Utils::gzipFile(std::string &filePathIn, std::string &filePathOut)
