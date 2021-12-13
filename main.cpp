@@ -1,4 +1,6 @@
 #include "src/utils.hpp"
+#include "src/sqlite.hpp"
+
 
 int main(int argc, char **argv)
 {
@@ -14,12 +16,19 @@ int main(int argc, char **argv)
         }
 
         Utils utils(debug);
-        utils.log("info", "Iniciando v"  + utils.getVersion());
+        utils.log("info", "Iniciando v" + Utils::getVersion());
+
+        Sqlite sqlite;
+
+
+
 
 
     }
-    catch(const std::exception&)
+    catch(GetException& e)
     {
+        Utils utils;
+        utils.log("error", e.what() + e.getInfo());
         return EXIT_FAILURE;
     }
 

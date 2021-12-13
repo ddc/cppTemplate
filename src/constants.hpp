@@ -1,5 +1,5 @@
-#ifndef LOGS_CONSTANTS_H
-#define LOGS_CONSTANTS_H
+#ifndef CONSTANTS_HPP
+#define CONSTANTS_HPP
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32)
     #include <Windows.h>
@@ -15,13 +15,14 @@
 
 
 #define VERSION "1.0.0"
-#define CFG_FILENAME "config/settings.ini"
+#define DEFAULT_CONFIG_DIRNAME "config"
+#define INI_FILENAME "settings.ini"
+#define SQLITE_FILENAME "database.db"
+#define LINUX_SFTP_BIN = "/usr/bin/sftp"
 
 
 
 
 
 
-
-
-#endif //LOGS_CONSTANTS_H
+#endif

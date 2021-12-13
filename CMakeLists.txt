@@ -5,13 +5,13 @@ project(${PROJECT_NAME})
 
 set(SOURCE_FILES
         main.cpp
+        src/version.rc
         src/constants.hpp
-        src/log.cpp
-        src/log.hpp
         src/utils.cpp
         src/utils.hpp
-        src/version.rc
-        )
+        src/log.cpp
+        src/log.hpp
+        src/exceptions.hpp src/sqlite.cpp src/sqlite.hpp)
 
 find_package(Boost 1.77.0 COMPONENTS date_time filesystem system iostreams program_options serialization)
 if(Boost_FOUND)

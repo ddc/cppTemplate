@@ -47,11 +47,11 @@ class Log
         void removeOldLogs();
         void writeMsg(std::string_view);
         void setMsg(std::string_view);
-        int getFileCTime(fs::path const&) const;
+        static int getFileCTime(fs::path const&);
 
     public:
         Log();
-        Log(bool);
+        explicit Log(bool);
         Log(bool, int);
         ~Log();
 

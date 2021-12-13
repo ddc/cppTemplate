@@ -16,7 +16,7 @@ namespace bios = boost::iostreams;
 
 Utils::Utils()
 {
-    this->setExecDir();
+    this->setExecPath();
     this->setExecFileName();
     this->setShowLogDebug(false);
     this->setDaysToKeepLogFiles(30);
@@ -24,7 +24,7 @@ Utils::Utils()
 
 Utils::Utils(bool showDebugLogs)
 {
-    this->setExecDir();
+    this->setExecPath();
     this->setExecFileName();
     this->setShowLogDebug(showDebugLogs);
     this->setDaysToKeepLogFiles(30);
@@ -32,39 +32,37 @@ Utils::Utils(bool showDebugLogs)
 
 Utils::Utils(bool showDebugLogs, int daysToKeepLogFile)
 {
-    this->setExecDir();
+    this->setExecPath();
     this->setExecFileName();
     this->setShowLogDebug(showDebugLogs);
     this->setDaysToKeepLogFiles(daysToKeepLogFile);
 }
 
 Utils::~Utils()
-{
+= default;
 
-}
-
-void Utils::setExecDir()
+void Utils::setExecPath()
 {
-    if(this->getIsWindows())
+    if(Utils::getIsWindows())
     {
         char buffer[MAX_PATH];
         GetModuleFileNameA(nullptr, buffer, MAX_PATH);
-        std::string::size_type pos = std::string(buffer).find_last_of(this->getSep());
-        this->execDir = std::string(buffer).substr(0, pos);
+        std::string::size_type pos = std::string(buffer).find_last_of(Utils::getSep());
+        this->execPath = std::string(buffer).substr(0, pos);
     }
     else
     {
-        this->execDir = "logs";
+        this->execPath = "logs";
     }
 }
 
 void Utils::setExecFileName()
 {
-    if(this->getIsWindows())
+    if(Utils::getIsWindows())
     {
         char buffer[MAX_PATH];
         GetModuleFileNameA(nullptr, buffer, MAX_PATH);
-        std::string::size_type pos = std::string(buffer).find_last_of("\000");
+        std::string::size_type pos = std::string(buffer).find_last_of('\000');
         auto dir = std::string(buffer).substr(0, pos);
         this->execFileName = dir.substr(dir.find_last_of(Utils::getSep()) + 1);
     }
@@ -74,7 +72,7 @@ void Utils::setExecFileName()
         //char result[PATH_MAX];
         //ssize_t count = this->readlinkCount;
         //std::string appPath = std::string(result, (count > 0) ? count : 0);
-        //std::size_t found = appPath.find_last_of(this->getSep());
+        //std::size_t found = appPath.find_last_of(Utils::getSep());
         //this->execFileName = appPath.substr(0, found);
     }
 }
@@ -152,12 +150,10 @@ std::string Utils::get_ini_value(std::string const& section, std::string const& 
     // daysToKeepLogs = utils.get_ini_value("main", "daysToKeepLogs");
 
     std::string value;
-    std::stringstream appendSS;
-    appendSS << this->execDir << this->getSep() << this->getSep() << this->getCfgFileName();
-    std::string configFile = appendSS.str();
-    this->log("debug", "[Config file]: "+configFile);
+    std::string iniFilePath = this->getIniFilePath();
+    this->log("debug", "[Config file]: "+iniFilePath);
 
-    std::ifstream ifs(configFile);
+    std::ifstream ifs(iniFilePath);
     if(!ifs.good()) throw std::exception();
 
     static const std::regex comment_regex{R"x(\s*[;#])x"};
@@ -200,12 +196,10 @@ std::map<std::string, std::string> Utils::get_ini_section(std::string const& sec
     // auto iniSection = utils.get_ini_section("main");
     // std::string daysToKeepLogs = iniSection.find("daysToKeepLogs")->second;
 
-    std::stringstream appendSS;
-    appendSS << this->execDir << this->getSep() << this->getSep() << this->getCfgFileName();
-    std::string configFile = appendSS.str();
-    this->log("debug", "[Config file]: "+configFile);
+    std::string iniFilePath = this->getIniFilePath();
+    this->log("debug", "[Config file]: "+iniFilePath);
 
-    std::ifstream ifs(configFile);
+    std::ifstream ifs(iniFilePath);
     if(!ifs.good()) throw std::exception();
 
     static const std::regex comment_regex{R"x(\s*[;#])x"};
@@ -257,7 +251,7 @@ bool Utils::gzipFile(std::string &filePathIn, std::string &filePathOut)
     }
     catch(bios::gzip_error& err)
     {
-        msg << "["<<this->getIsoTimeStr()<<"]:"
+        msg << "["<<Utils::getIsoTimeStr()<<"]:"
             << "[FATAL]:[Could not compress file]:"
             << "["<<filePathIn<<"]:"
             << err.what();
@@ -276,7 +270,7 @@ bool Utils::deleteFile(std::string &filePath)
         fs::remove(filePath, ec);
         if(ec)
         {
-            msg << "["<<this->getIsoTimeStr()<<"]:"
+            msg << "["<<Utils::getIsoTimeStr()<<"]:"
                 << "[ERROR]:[Could not delete file]:"
                 << "["<<filePath<<"]:"
                 << "[Error Number: " << ec.value() << "]: "
@@ -286,7 +280,7 @@ bool Utils::deleteFile(std::string &filePath)
         }
         else if(this->getShowLogDebug())
         {
-            msg << "["<<this->getIsoTimeStr()<<"]:"
+            msg << "["<<Utils::getIsoTimeStr()<<"]:"
                 << "[DEBUG]:File successfully deleted: "
                 << filePath;
             this->log("debug", msg.str());
@@ -295,7 +289,7 @@ bool Utils::deleteFile(std::string &filePath)
     catch(fs::filesystem_error& err)
     {
         msg = std::stringstream();
-        msg << "["<<this->getIsoTimeStr()<<"]:"
+        msg << "["<<Utils::getIsoTimeStr()<<"]:"
             << "[FATAL]:[Could not delete file]:"
             << "["<<filePath<<"]:"
             << err.what();

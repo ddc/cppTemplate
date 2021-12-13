@@ -1,5 +1,5 @@
 #include "log.hpp"
-#include <time.h>
+#include <ctime>
 #include <sys/stat.h>
 #include <charconv>
 #include <algorithm>
@@ -46,12 +46,12 @@ void Log::setLogPaths()
     this->setFileName(appendSS.str());
     appendSS = std::stringstream();
 
-    std::string execDir = utils.getExecDir();
-    appendSS << execDir << utils.getSep() << "logs";
+    std::string execPath = utils.getExecPath();
+    appendSS << execPath << Utils::getSep() << "logs";
     this->setDirLogs(appendSS.str());
     appendSS = std::stringstream();
 
-    appendSS << this->getDirLogs() << utils.getSep() << this->getFileName();
+    appendSS << this->getDirLogs() << Utils::getSep() << this->getFileName();
     this->setFilePath(appendSS.str());
     appendSS = std::stringstream();
 
@@ -77,7 +77,7 @@ void Log::checkLogDirPath() const
     {
         Utils utils(this->getShowDebug(), this->getDaysToKeep());
         std::stringstream msg;
-        msg << "["<<utils.getIsoTimeStr()<<"]:"
+        msg << "["<<Utils::getIsoTimeStr()<<"]:"
             << "[FATAL]:" << this->getDirLogs() << "]:"
             << err.what();
         utils.print(msg.str());
@@ -94,11 +94,11 @@ void Log::openLogFile()
         this->logFile.open(filepath);
 }
 
-int Log::getFileCTime(fs::path const &fpath) const
+int Log::getFileCTime(fs::path const &fpath)
 {
     std::stringstream ss;
     ss << fpath.string();
-    struct stat fileInfo;
+    struct stat fileInfo{};
     std::string fPath;
     fPath = ss.str();
     const char *flPath = fPath.c_str();
@@ -130,10 +130,10 @@ void Log::compressOldLogs()
 
         if(filePathInExt == "log" && fs::is_regular_file(file) && isFileOlderThanXDays)
         {
-            int fileCtime = this->getFileCTime(file.path());
-            std::string filename = filePathIn.substr(filePathIn.find_last_of(utils.getSep()) + 1);
+            int fileCtime = Log::getFileCTime(file.path());
+            std::string filename = filePathIn.substr(filePathIn.find_last_of(Utils::getSep()) + 1);
             std::stringstream ss;
-            ss << this->getDirLogs() << utils.getSep() << filename.substr(0,filename.length() - 4) << "_" << fileCtime << ".log";
+            ss << this->getDirLogs() << Utils::getSep() << filename.substr(0,filename.length() - 4) << "_" << fileCtime << ".log";
             std::string filePathOut;
             filePathOut = ss.str();
 
@@ -168,7 +168,7 @@ void Log::setMsg(std::string_view msg)
 {
     Utils utils(this->getShowDebug(), this->getDaysToKeep());
     std::stringstream fullMsg;
-    fullMsg << "["<<utils.getIsoTimeStr()<<"]:"
+    fullMsg << "["<<Utils::getIsoTimeStr()<<"]:"
             << "["<<this->getLogLevel()<<"]:"
             << msg;
 
