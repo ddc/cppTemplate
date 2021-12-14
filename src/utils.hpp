@@ -15,19 +15,16 @@
 namespace fs = std::filesystem;
 
 
-
 class Utils
 {
     private:
-        bool showDebug{};
-        int daysToKeepFile{};
+        std::string execPath{};
+        std::string execFileName{};
         char osSep{};
         bool isWindows{};
-        std::string execFileName{};
-        std::string execPath{};
 
-        void inline setShowLogDebug(bool x){ this->showDebug = x; }
-        void inline setDaysToKeepLogFiles(int x){ this->daysToKeepFile = x; }
+        void inline setExecPath(std::string const &x){ this->execPath = x; }
+        void inline setExecFileName(std::string const &x){ this->execFileName = x; }
         void inline setOsSep(char x){ this->osSep = x; }
         void inline setIsWindows(bool x){ this->isWindows = x; }
 
@@ -37,15 +34,13 @@ class Utils
 
     public:
         Utils();
-        explicit Utils(bool);
-        Utils(bool, int);
         ~Utils();
 
-        int inline getShowLogDebug() const { return this->showDebug;}
-        int inline getDaysToKeepLogFiles() const { return this->daysToKeepFile; }
+        static int inline getShowLogDebug() { return showLogDebug; }
+        static int inline getDaysToKeepLogFiles() { return daysToKeepLogFiles; }
         char inline getSep() const { return this->osSep; }
         bool inline getIsWindows() const { return this->isWindows; }
-        std::string inline getIniFilePath() { return this->execPath + DEFAULT_CONFIG_DIRNAME + Utils::getSep() + Utils::getIniFileName(); }
+        std::string inline getIniFilePath() { return this->execPath + Utils::getSep() + DEFAULT_CONFIG_DIRNAME + Utils::getSep() + Utils::getIniFileName(); }
         std::string inline getExecFileName() const{ return this->execFileName; }
         std::string inline getExecPath() const{ return this->execPath; }
 
@@ -56,8 +51,8 @@ class Utils
         static bool gzipFile(std::string&, std::string&);
         static const char* str2char(std::string);
         static bool isFileOlderThanXDays(std::string const&, int);
-
         static void print(std::string_view);
+
         bool deleteFile(std::string&);
         void log(const char*, std::string_view);
         unsigned int getHash(const char*, int);

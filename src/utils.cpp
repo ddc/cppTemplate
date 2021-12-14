@@ -2,10 +2,10 @@
 #include <sys/stat.h>
 #include <fstream>
 #include <string_view>
+#include <regex>
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
-#include <regex>
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32)
     #include <Windows.h>
@@ -18,6 +18,7 @@
     #define OS_SEP '/'
 #endif
 
+
 namespace ch = std::chrono;
 namespace fs = std::filesystem;
 namespace bios = boost::iostreams;
@@ -28,28 +29,6 @@ Utils::Utils()
     this->setConstants();
     this->setExecPath();
     this->setExecFileName();
-    this->setShowLogDebug(false);
-    this->setDaysToKeepLogFiles(30);
-}
-
-
-Utils::Utils(bool showDebugLogs)
-{
-    this->setConstants();
-    this->setExecPath();
-    this->setExecFileName();
-    this->setShowLogDebug(showDebugLogs);
-    this->setDaysToKeepLogFiles(30);
-}
-
-
-Utils::Utils(bool showDebugLogs, int daysToKeepLogFile)
-{
-    this->setConstants();
-    this->setExecPath();
-    this->setExecFileName();
-    this->setShowLogDebug(showDebugLogs);
-    this->setDaysToKeepLogFiles(daysToKeepLogFile);
 }
 
 
@@ -64,11 +43,11 @@ void Utils::setExecPath()
         char buffer[MAX_PATH];
         GetModuleFileNameA(nullptr, buffer, MAX_PATH);
         std::string::size_type pos = std::string(buffer).find_last_of(this->getSep());
-        this->execPath = std::string(buffer).substr(0, pos);
+        this->setExecPath(std::string(buffer).substr(0, pos));
     }
     else
     {
-        this->execPath = "logs";
+        this->setExecPath("logs");
     }
 }
 
@@ -81,16 +60,16 @@ void Utils::setExecFileName()
         GetModuleFileNameA(nullptr, buffer, MAX_PATH);
         std::string::size_type pos = std::string(buffer).find_last_of('\000');
         auto dir = std::string(buffer).substr(0, pos);
-        this->execFileName = dir.substr(dir.find_last_of(this->getSep()) + 1);
+        this->setExecFileName(dir.substr(dir.find_last_of(this->getSep()) + 1));
     }
     else
     {
-        this->execFileName = "main";
+        this->setExecFileName("main");
         //char result[PATH_MAX];
         //ssize_t count = this->readlinkCount;
         //std::string appPath = std::string(result, (count > 0) ? count : 0);
         //std::size_t found = appPath.find_last_of(this->getSep());
-        //this->execFileName = appPath.substr(0, found);
+        //this->setExecFileName(appPath.substr(0, found));
     }
 }
 
@@ -172,10 +151,13 @@ std::string Utils::get_ini_value(std::string const& section, std::string const& 
 
     std::string value;
     std::string iniFilePath = this->getIniFilePath();
-    this->log("debug", "[Config file]: "+iniFilePath);
-
     std::ifstream ifs(iniFilePath);
-    if(!ifs.good()) throw std::exception();
+
+    if(!ifs.good())
+    {
+        this->log("error", "File could not be found: " + iniFilePath);
+        throw std::exception();
+    }
 
     static const std::regex comment_regex{R"x(\s*[;#])x"};
     static const std::regex section_regex{R"x(\s*\[([^\]]+)\])x"};
@@ -218,10 +200,12 @@ std::map<std::string, std::string> Utils::get_ini_section(std::string const& sec
     // std::string daysToKeepLogs = iniSection.find("daysToKeepLogs")->second;
 
     std::string iniFilePath = this->getIniFilePath();
-    this->log("debug", "[Config file]: "+iniFilePath);
-
     std::ifstream ifs(iniFilePath);
-    if(!ifs.good()) throw std::exception();
+    if(!ifs.good())
+    {
+        this->log("error", "File could not be found: " + iniFilePath);
+        throw std::exception();
+    }
 
     static const std::regex comment_regex{R"x(\s*[;#])x"};
     static const std::regex section_regex{R"x(\s*\[([^\]]+)\])x"};
@@ -301,7 +285,7 @@ bool Utils::deleteFile(std::string &filePath)
             this->log("debug", msg.str());
             return false;
         }
-        else if(this->getShowLogDebug())
+        else if(Utils::getShowLogDebug())
         {
             msg << "["<<Utils::getIsoTimeStr()<<"]:"
                 << "[DEBUG]:File successfully deleted: "
@@ -339,7 +323,7 @@ unsigned int Utils::getHash(const char* str, int h = 0)
 
 void Utils::log(const char *level, std::string_view msg)
 {
-    Log log(this->getShowLogDebug(), this->getDaysToKeepLogFiles());
+    Log log(Utils::getShowLogDebug(), Utils::getDaysToKeepLogFiles());
     unsigned int levelInt = this->getHash(level);
 
     switch(levelInt)

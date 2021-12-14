@@ -1,6 +1,5 @@
 #ifndef CONSTANTS_HPP
 #define CONSTANTS_HPP
-#include <string>
 
 
 #define VERSION "1.0.0"
@@ -8,8 +7,6 @@
 #define INI_FILENAME "settings.ini"
 #define SQLITE_FILENAME "database.db"
 #define LINUX_SFTP_BIN = "/usr/bin/sftp"
-
-
 
 
 #endif

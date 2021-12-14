@@ -1,9 +1,10 @@
 #include "log.hpp"
+#include "utils.hpp"
 #include <ctime>
 #include <sys/stat.h>
 #include <charconv>
 #include <algorithm>
-#include "utils.hpp"
+
 
 namespace rg = std::ranges;
 namespace fs = std::filesystem;
@@ -11,22 +12,25 @@ namespace fs = std::filesystem;
 
 Log::Log()
 {
-    Log::setShowDebug(false);
-    Log::setDaysToKeep(30);
+    if (daysToKeepLogFiles == 0)
+        daysToKeepLogFiles = 30;
     this->setLogPaths();
 }
 
 
 Log::Log(bool showDebug)
 {
+    if (daysToKeepLogFiles == 0)
+        daysToKeepLogFiles = 30;
     Log::setShowDebug(showDebug);
-    Log::setDaysToKeep(30);
     this->setLogPaths();
 }
 
 
 Log::Log(bool showDebug, int daysToKeep)
 {
+    if (daysToKeep == 0 || daysToKeepLogFiles == 0)
+        daysToKeep = 30;
     Log::setShowDebug(showDebug);
     Log::setDaysToKeep(daysToKeep);
     this->setLogPaths();
@@ -40,7 +44,7 @@ Log::~Log()
 
 void Log::setLogPaths()
 {
-    Utils utils(this->getShowDebug(), this->getDaysToKeep());
+    Utils utils;
     std::stringstream appendSS;
 
     std::string filename = utils.getExecFileName();
@@ -80,12 +84,12 @@ void Log::checkLogDirPath() const
     }
     catch(const fs::filesystem_error& err)
     {
-        Utils utils(this->getShowDebug(), this->getDaysToKeep());
+        Utils utils;
         std::stringstream msg;
         msg << "["<<Utils::getIsoTimeStr()<<"]:"
             << "[FATAL]:" << this->getDirLogs() << "]:"
             << err.what();
-        utils.print(msg.str());
+        Utils::print(msg.str());
         throw std::exception();
     }
 }
@@ -127,7 +131,7 @@ int Log::getFileCTime(fs::path const &fpath)
 
 void Log::compressOldLogs()
 {
-    Utils utils(this->getShowDebug(), this->getDaysToKeep());
+    Utils utils;
     for(auto &file : fs::directory_iterator(this->getDirLogs()))
     {
         std::string filePathIn = file.path().string();
@@ -152,7 +156,7 @@ void Log::compressOldLogs()
 
 void Log::removeOldLogs()
 {
-    Utils utils(this->getShowDebug(), this->getDaysToKeep());
+    Utils utils;
     for(auto &file : fs::directory_iterator(this->getDirLogs()))
     {
         std::string curFilePath = file.path().string();
@@ -174,13 +178,13 @@ void Log::writeMsg(std::string_view fullMsg)
 
 void Log::setMsg(std::string_view msg)
 {
-    Utils utils(this->getShowDebug(), this->getDaysToKeep());
+    Utils utils;
     std::stringstream fullMsg;
     fullMsg << "["<<Utils::getIsoTimeStr()<<"]:"
             << "["<<this->getLogLevel()<<"]:"
             << msg;
 
-    if(this->getShowDebug())
+    if(Log::getShowDebug())
         this->writeMsg(fullMsg.str());
     else
     {

@@ -5,28 +5,27 @@
 #include <string_view>
 #include <fstream>
 #include <filesystem>
-#include "constants.hpp"
 
 
 namespace fs = std::filesystem;
+extern bool showLogDebug;
+extern int daysToKeepLogFiles;
 
 
 class Log
 {
     private:
-        bool showDebug{};
-        int daysToKeepFile{};
         std::string_view logLevel{};
         std::string_view fileName{};
         std::string dirLogs{};
         std::string filePath{};
         std::ofstream logFile{};
 
-        void inline setShowDebug(bool x){ this->showDebug = x; }
-		int inline getShowDebug() const { return this->showDebug; }
+        static void inline setShowDebug(bool x){ showLogDebug = x; }
+		static int inline getShowDebug() { return showLogDebug; }
 
-        void inline setDaysToKeep(int x){ this->daysToKeepFile = x; }
-		int inline getDaysToKeep() const { return this->daysToKeepFile; }
+        static void inline setDaysToKeep(int x){ daysToKeepLogFiles = x; }
+		static int inline getDaysToKeep() { return daysToKeepLogFiles; }
 
         void inline setLogLevel(std::string_view x){ this->logLevel = x; }
 		std::string_view inline getLogLevel() const{ return this->logLevel; }

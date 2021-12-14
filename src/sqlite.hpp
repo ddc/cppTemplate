@@ -2,8 +2,6 @@
 #define SQLITE_HPP
 
 #include "utils.hpp"
-#include "constants.hpp"
-#include "exceptions.hpp"
 #include <iostream>
 #include <string>
 

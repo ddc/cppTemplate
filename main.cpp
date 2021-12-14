@@ -2,20 +2,25 @@
 #include "src/sqlite.hpp"
 
 
+bool showLogDebug{};
+int daysToKeepLogFiles{};
+
+
 int main(int argc, char **argv)
 {
     try
     {
-        bool debug = false;
+        showLogDebug = false;
         if(argc > 1)
         {
             std::string argv1 = argv[1];
             if(!std::isdigit(*argv[1]))
                 if(argv1 == "-d" or argv1 == "--debug")
-                    debug = true;
+                    showLogDebug = true;
         }
 
-        Utils utils(debug, 90);
+        Utils utils;
+        daysToKeepLogFiles = stoi(utils.get_ini_value("main", "daysToKeepLogs"));
         utils.log("info", "Iniciando v" + Utils::getVersion());
 
         Sqlite sqlite;
