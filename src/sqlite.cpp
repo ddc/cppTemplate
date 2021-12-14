@@ -1,11 +1,12 @@
 #include "sqlite.hpp"
+#include <cstdio>
+#include <sqlite3.h>
 
 
 Sqlite::Sqlite()
 {
-    this->sqliteFilePath = Sqlite::getSqliteFilePath();
-    std::cout << this->sqliteFilePath << std::endl;
-
+    this->setSqliteFilePath();
+    this->testSqliteConnection();
 
 
 
@@ -20,14 +21,36 @@ Sqlite::~Sqlite()
 = default;
 
 
-std::string Sqlite::getSqliteFilePath()
+void Sqlite::setSqliteFilePath()
 {
     Utils utils;
     std::stringstream ss;
     ss << utils.getExecPath()
-       << Utils::getSep()
+       << utils.getSep()
        << DEFAULT_CONFIG_DIRNAME
-       << Utils::getSep()
+       << utils.getSep()
        << Sqlite::getSqliteFileName();
-    return ss.str();
+    this->sqliteFilePath = ss.str();
+}
+
+
+bool Sqlite::testSqliteConnection()
+{
+    Utils utils;
+    sqlite3* DB;
+    int rs = sqlite3_open(this->getSqliteFilePath().c_str(), &DB);
+    utils.log("debug", "SqliteFilePath: "+ this->getSqliteFilePath());
+
+    if (rs)
+    {
+        std::stringstream ss;
+        ss << "Error open SQLite Database " << sqlite3_errmsg(DB);
+        utils.log("error", ss.str());
+        return false;
+    }
+    else
+        utils.log("debug", "SQLite Database Opened Successfully!");
+
+    sqlite3_close(DB);
+    return true;
 }

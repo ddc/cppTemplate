@@ -5,6 +5,7 @@
 #include <string_view>
 #include <fstream>
 #include <filesystem>
+#include "constants.hpp"
 
 
 namespace fs = std::filesystem;
@@ -13,19 +14,19 @@ namespace fs = std::filesystem;
 class Log
 {
     private:
-        int daysToKeepFile{};
         bool showDebug{};
+        int daysToKeepFile{};
         std::string_view logLevel{};
         std::string_view fileName{};
         std::string dirLogs{};
         std::string filePath{};
         std::ofstream logFile{};
 
-        void inline setDaysToKeep(int x){ this->daysToKeepFile = x; }
-		int inline getDaysToKeep() const{ return this->daysToKeepFile; }
-
         void inline setShowDebug(bool x){ this->showDebug = x; }
-		int inline getShowDebug() const{ return this->showDebug; }
+		int inline getShowDebug() const { return this->showDebug; }
+
+        void inline setDaysToKeep(int x){ this->daysToKeepFile = x; }
+		int inline getDaysToKeep() const { return this->daysToKeepFile; }
 
         void inline setLogLevel(std::string_view x){ this->logLevel = x; }
 		std::string_view inline getLogLevel() const{ return this->logLevel; }

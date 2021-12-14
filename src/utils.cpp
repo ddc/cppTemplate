@@ -1,5 +1,4 @@
 #include "utils.hpp"
-#include "log.hpp"
 #include <sys/stat.h>
 #include <fstream>
 #include <string_view>
@@ -8,6 +7,16 @@
 #include <boost/iostreams/filtering_stream.hpp>
 #include <regex>
 
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32)
+    #include <Windows.h>
+    #define IS_WINDOWS 1
+    #define OS_SEP '\\'
+#else
+    #include <unistd.h>
+    #include <limits.h>
+    #define IS_WINDOWS 0
+    #define OS_SEP '/'
+#endif
 
 namespace ch = std::chrono;
 namespace fs = std::filesystem;
@@ -16,38 +25,45 @@ namespace bios = boost::iostreams;
 
 Utils::Utils()
 {
+    this->setConstants();
     this->setExecPath();
     this->setExecFileName();
     this->setShowLogDebug(false);
     this->setDaysToKeepLogFiles(30);
 }
 
+
 Utils::Utils(bool showDebugLogs)
 {
+    this->setConstants();
     this->setExecPath();
     this->setExecFileName();
     this->setShowLogDebug(showDebugLogs);
     this->setDaysToKeepLogFiles(30);
 }
 
+
 Utils::Utils(bool showDebugLogs, int daysToKeepLogFile)
 {
+    this->setConstants();
     this->setExecPath();
     this->setExecFileName();
     this->setShowLogDebug(showDebugLogs);
     this->setDaysToKeepLogFiles(daysToKeepLogFile);
 }
 
+
 Utils::~Utils()
 = default;
 
+
 void Utils::setExecPath()
 {
-    if(Utils::getIsWindows())
+    if(this->getIsWindows())
     {
         char buffer[MAX_PATH];
         GetModuleFileNameA(nullptr, buffer, MAX_PATH);
-        std::string::size_type pos = std::string(buffer).find_last_of(Utils::getSep());
+        std::string::size_type pos = std::string(buffer).find_last_of(this->getSep());
         this->execPath = std::string(buffer).substr(0, pos);
     }
     else
@@ -56,15 +72,16 @@ void Utils::setExecPath()
     }
 }
 
+
 void Utils::setExecFileName()
 {
-    if(Utils::getIsWindows())
+    if(this->getIsWindows())
     {
         char buffer[MAX_PATH];
         GetModuleFileNameA(nullptr, buffer, MAX_PATH);
         std::string::size_type pos = std::string(buffer).find_last_of('\000');
         auto dir = std::string(buffer).substr(0, pos);
-        this->execFileName = dir.substr(dir.find_last_of(Utils::getSep()) + 1);
+        this->execFileName = dir.substr(dir.find_last_of(this->getSep()) + 1);
     }
     else
     {
@@ -72,15 +89,17 @@ void Utils::setExecFileName()
         //char result[PATH_MAX];
         //ssize_t count = this->readlinkCount;
         //std::string appPath = std::string(result, (count > 0) ? count : 0);
-        //std::size_t found = appPath.find_last_of(Utils::getSep());
+        //std::size_t found = appPath.find_last_of(this->getSep());
         //this->execFileName = appPath.substr(0, found);
     }
 }
+
 
 void Utils::print(std::string_view x)
 {
     std::cout << x << std::endl;
 }
+
 
 bool Utils::isFileOlderThanXDays(std::string const &fPath, int kdays)
 {
@@ -131,6 +150,7 @@ bool Utils::isFileOlderThanXDays(std::string const &fPath, int kdays)
     return false;
 }
 
+
 std::string Utils::getIsoTimeStr()
 {
     auto now = ch::system_clock::now();
@@ -142,6 +162,7 @@ std::string Utils::getIsoTimeStr()
             << '.' << std::setfill('0') << std::setw(3) << ms;
     return isoTime.str();
 }
+
 
 std::string Utils::get_ini_value(std::string const& section, std::string const& key)
 {
@@ -168,7 +189,7 @@ std::string Utils::get_ini_value(std::string const& section, std::string const& 
     {
         if (line.empty() || std::regex_match(line, pieces, comment_regex))
         {
-            // skip comment lines and blank lines
+            // skipping comment and blank lines
         }
         else if (std::regex_match(line, pieces, section_regex))
         {
@@ -214,7 +235,7 @@ std::map<std::string, std::string> Utils::get_ini_section(std::string const& sec
     {
         if (line.empty() || std::regex_match(line, pieces, comment_regex))
         {
-            // skip comment lines and blank lines
+            // skipping comment and blank lines
         }
         else if (std::regex_match(line, pieces, section_regex))
         {
@@ -233,6 +254,7 @@ std::map<std::string, std::string> Utils::get_ini_section(std::string const& sec
 
     return iniSection;
 }
+
 
 bool Utils::gzipFile(std::string &filePathIn, std::string &filePathOut)
 {
@@ -260,6 +282,7 @@ bool Utils::gzipFile(std::string &filePathIn, std::string &filePathOut)
 
     return true;
 }
+
 
 bool Utils::deleteFile(std::string &filePath)
 {
@@ -300,22 +323,23 @@ bool Utils::deleteFile(std::string &filePath)
     return true;
 }
 
+
 const char* Utils::str2char(std::string str)
 {
     const char* str_cstr = &*str.begin();
     return str_cstr;
 }
 
+
 unsigned int Utils::getHash(const char* str, int h = 0)
 {
     return !str[h] ? 5381 : (getHash(str, h+1) * 33) ^ str[h];
 }
 
+
 void Utils::log(const char *level, std::string_view msg)
 {
-    int dtkLogFiles = this->getDaysToKeepLogFiles();
-    bool debug = this->getShowLogDebug();
-    Log log(debug, dtkLogFiles);
+    Log log(this->getShowLogDebug(), this->getDaysToKeepLogFiles());
     unsigned int levelInt = this->getHash(level);
 
     switch(levelInt)
@@ -342,4 +366,15 @@ void Utils::log(const char *level, std::string_view msg)
            log.info(msg);
            break;
     }
+}
+
+
+void Utils::setConstants()
+{
+    this->setOsSep(OS_SEP);
+
+    if (IS_WINDOWS == 1)
+        this->setIsWindows(true);
+    else
+        this->setIsWindows(false);
 }

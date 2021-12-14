@@ -7,11 +7,13 @@ set(SOURCE_FILES
         main.cpp
         src/version.rc
         src/constants.hpp
+        src/exceptions.hpp
         src/utils.cpp
         src/utils.hpp
         src/log.cpp
         src/log.hpp
-        src/exceptions.hpp src/sqlite.cpp src/sqlite.hpp)
+        src/sqlite.cpp
+        src/sqlite.hpp)
 
 find_package(Boost 1.77.0 COMPONENTS date_time filesystem system iostreams program_options serialization)
 if(Boost_FOUND)
@@ -20,5 +22,5 @@ if(Boost_FOUND)
     set(Boost_USE_STATIC_RUNTIME    OFF)
     include_directories(${Boost_INCLUDE_DIRS})
     add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-    target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
+    target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} sqlite3)
 endif()

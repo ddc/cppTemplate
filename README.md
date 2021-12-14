@@ -11,5 +11,6 @@
     pacman -S mingw-w64-x86_64-cmake
     pacman -S mingw-w64-x86_64-boost
     pacman -S mingw-w64-x86_64-ag
-    pacman -S vim && ln -s /usr/bin/vim.exe /usr/bin/vi.exe
-    pacman -S automake1.9 unrar
+    pacman -S mingw-w64-x86_64-sqlite3
+    pacman -S automake1.9 unrar vim
+    ln -s /usr/bin/vim.exe /usr/bin/vi.exe

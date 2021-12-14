@@ -15,7 +15,7 @@ class Sqlite
 
 
         static std::string inline getSqliteFileName() { return SQLITE_FILENAME; }
-        static std::string getSqliteFilePath();
+        void setSqliteFilePath();
 
 
 
@@ -25,7 +25,8 @@ class Sqlite
         ~Sqlite();
 
 
-
+        std::string getSqliteFilePath() { return this->sqliteFilePath; }
+        bool testSqliteConnection();
 
 
 

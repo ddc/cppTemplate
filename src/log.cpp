@@ -11,22 +11,24 @@ namespace fs = std::filesystem;
 
 Log::Log()
 {
-    this->setShowDebug(false);
-    this->setDaysToKeep(30);
+    Log::setShowDebug(false);
+    Log::setDaysToKeep(30);
     this->setLogPaths();
 }
+
 
 Log::Log(bool showDebug)
 {
-    this->setShowDebug(showDebug);
-    this->setDaysToKeep(30);
+    Log::setShowDebug(showDebug);
+    Log::setDaysToKeep(30);
     this->setLogPaths();
 }
 
+
 Log::Log(bool showDebug, int daysToKeep)
 {
-    this->setShowDebug(showDebug);
-    this->setDaysToKeep(daysToKeep);
+    Log::setShowDebug(showDebug);
+    Log::setDaysToKeep(daysToKeep);
     this->setLogPaths();
 }
 
@@ -34,6 +36,7 @@ Log::~Log()
 {
     this->logFile.close();
 }
+
 
 void Log::setLogPaths()
 {
@@ -47,16 +50,17 @@ void Log::setLogPaths()
     appendSS = std::stringstream();
 
     std::string execPath = utils.getExecPath();
-    appendSS << execPath << Utils::getSep() << "logs";
+    appendSS << execPath << utils.getSep() << "logs";
     this->setDirLogs(appendSS.str());
     appendSS = std::stringstream();
 
-    appendSS << this->getDirLogs() << Utils::getSep() << this->getFileName();
+    appendSS << this->getDirLogs() << utils.getSep() << this->getFileName();
     this->setFilePath(appendSS.str());
     appendSS = std::stringstream();
 
     this->initFuncCalls();
 }
+
 
 void Log::initFuncCalls()
 {
@@ -65,6 +69,7 @@ void Log::initFuncCalls()
     this->compressOldLogs();
     this->openLogFile();
 }
+
 
 void Log::checkLogDirPath() const
 {
@@ -85,6 +90,7 @@ void Log::checkLogDirPath() const
     }
 }
 
+
 void Log::openLogFile()
 {
     auto filepath = fs::path(this->getFilePath());
@@ -93,6 +99,7 @@ void Log::openLogFile()
     else
         this->logFile.open(filepath);
 }
+
 
 int Log::getFileCTime(fs::path const &fpath)
 {
@@ -112,12 +119,11 @@ int Log::getFileCTime(fs::path const &fpath)
 
     int dateFctime;
     if(const std::from_chars_result result = std::from_chars(fctimeStr.data(), fctimeStr.data() + fctimeStr.size(), dateFctime);
-        result.ec == std::errc::invalid_argument || result.ec == std::errc::result_out_of_range
-      )
+        result.ec == std::errc::invalid_argument || result.ec == std::errc::result_out_of_range)
         throw std::exception();
     return dateFctime;
-
 }
+
 
 void Log::compressOldLogs()
 {
@@ -126,22 +132,23 @@ void Log::compressOldLogs()
     {
         std::string filePathIn = file.path().string();
         std::string filePathInExt = filePathIn.substr(filePathIn.find_last_of('.') + 1);
-        bool isFileOlderThanXDays = utils.isFileOlderThanXDays(filePathIn, 1);
+        bool isFileOlderThanXDays = Utils::isFileOlderThanXDays(filePathIn, 1);
 
         if(filePathInExt == "log" && fs::is_regular_file(file) && isFileOlderThanXDays)
         {
             int fileCtime = Log::getFileCTime(file.path());
-            std::string filename = filePathIn.substr(filePathIn.find_last_of(Utils::getSep()) + 1);
+            std::string filename = filePathIn.substr(filePathIn.find_last_of(utils.getSep()) + 1);
             std::stringstream ss;
-            ss << this->getDirLogs() << Utils::getSep() << filename.substr(0,filename.length() - 4) << "_" << fileCtime << ".log";
+            ss << this->getDirLogs() << utils.getSep() << filename.substr(0,filename.length() - 4) << "_" << fileCtime << ".log";
             std::string filePathOut;
             filePathOut = ss.str();
 
-            if(utils.gzipFile(filePathIn, filePathOut))
+            if(Utils::gzipFile(filePathIn, filePathOut))
                 utils.deleteFile(filePathIn);
         }
     }
 }
+
 
 void Log::removeOldLogs()
 {
@@ -150,19 +157,20 @@ void Log::removeOldLogs()
     {
         std::string curFilePath = file.path().string();
         std::string curFileExt = curFilePath.substr(curFilePath.find_last_of('.') + 1);
-        bool isFileOlderThanXDays = utils.isFileOlderThanXDays(curFilePath, this->getDaysToKeep());
+        bool isFileOlderThanXDays = Utils::isFileOlderThanXDays(curFilePath, this->getDaysToKeep());
 
         if(curFileExt == "gz" && fs::is_regular_file(file) && isFileOlderThanXDays)
             utils.deleteFile(curFilePath);
     }
 }
 
+
 void Log::writeMsg(std::string_view fullMsg)
 {
-    Utils utils(this->getShowDebug(), this->getDaysToKeep());
-    utils.print(fullMsg);
+    Utils::print(fullMsg);
     this->logFile << fullMsg << std::endl;
 }
+
 
 void Log::setMsg(std::string_view msg)
 {

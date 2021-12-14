@@ -15,11 +15,10 @@ int main(int argc, char **argv)
                     debug = true;
         }
 
-        Utils utils(debug);
+        Utils utils(debug, 90);
         utils.log("info", "Iniciando v" + Utils::getVersion());
 
         Sqlite sqlite;
-
 
 
 
