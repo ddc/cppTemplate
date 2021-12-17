@@ -1,7 +1,7 @@
 #ifndef SQLITE_HPP
 #define SQLITE_HPP
 
-#include "utils.hpp"
+#include "../../utils.hpp"
 #include <iostream>
 #include <string>
 

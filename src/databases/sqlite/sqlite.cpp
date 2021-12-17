@@ -1,5 +1,4 @@
 #include "sqlite.hpp"
-#include <cstdio>
 #include <sqlite3.h>
 
 
