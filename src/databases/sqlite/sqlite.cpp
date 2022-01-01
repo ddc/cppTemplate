@@ -40,7 +40,7 @@ bool Sqlite::testSqliteConnection()
     int rs = sqlite3_open(this->getSqliteFilePath().c_str(), &DB);
     utils.log("debug", "SqliteFilePath: "+ this->getSqliteFilePath());
 
-    if (rs)
+    if(rs)
     {
         std::stringstream ss;
         ss << "Error open SQLite Database " << sqlite3_errmsg(DB);

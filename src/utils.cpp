@@ -167,21 +167,21 @@ std::string Utils::get_ini_value(std::string const& section, std::string const& 
     std::smatch pieces;
     bool sectionFound = false;
 
-    for (std::string line; std::getline(ifs, line);)
+    for(std::string line; std::getline(ifs, line);)
     {
-        if (line.empty() || std::regex_match(line, pieces, comment_regex))
+        if(line.empty() || std::regex_match(line, pieces, comment_regex))
         {
             // skipping comment and blank lines
         }
-        else if (std::regex_match(line, pieces, section_regex))
+        else if(std::regex_match(line, pieces, section_regex))
         {
             current_section = pieces[1].str();
-            if (pieces.size() == 2 && pieces[1].str() == section && !sectionFound)
+            if(pieces.size() == 2 && pieces[1].str() == section && !sectionFound)
                 sectionFound = true;
         }
-        else if (std::regex_match(line, pieces, value_regex))
+        else if(std::regex_match(line, pieces, value_regex))
         {
-            if (pieces.size() == 4 && current_section == section && (pieces[1].str() == key))
+            if(pieces.size() == 4 && current_section == section && (pieces[1].str() == key))
             {
                 value = pieces[2].str();
                 break;
@@ -215,23 +215,23 @@ std::map<std::string, std::string> Utils::get_ini_section(std::string const& sec
     std::smatch pieces;
     bool sectionFound = false;
 
-    for (std::string line; std::getline(ifs, line);)
+    for(std::string line; std::getline(ifs, line);)
     {
-        if (line.empty() || std::regex_match(line, pieces, comment_regex))
+        if(line.empty() || std::regex_match(line, pieces, comment_regex))
         {
             // skipping comment and blank lines
         }
         else if (std::regex_match(line, pieces, section_regex))
         {
             current_section = pieces[1].str();
-            if (pieces.size() == 2 && pieces[1].str() == section && !sectionFound)
+            if(pieces.size() == 2 && pieces[1].str() == section && !sectionFound)
                 sectionFound = true;
         }
-        else if (std::regex_match(line, pieces, value_regex))
+        else if(std::regex_match(line, pieces, value_regex))
         {
-            if (pieces.size() == 4 && current_section == section)
+            if(pieces.size() == 4 && current_section == section)
                 iniSection[pieces[1].str()] = pieces[2].str();
-            else if (sectionFound)
+            else if(sectionFound)
                 break;
         }
     }
@@ -357,7 +357,7 @@ void Utils::setConstants()
 {
     this->setOsSep(OS_SEP);
 
-    if (IS_WINDOWS == 1)
+    if(IS_WINDOWS == 1)
         this->setIsWindows(true);
     else
         this->setIsWindows(false);
