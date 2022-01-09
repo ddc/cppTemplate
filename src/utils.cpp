@@ -74,7 +74,11 @@ void Utils::setExecFileName()
 }
 
 
-void Utils::print(std::string_view x)
+//void Utils::print(std::string_view x)
+//{
+//    std::cout << x << std::endl;
+//}
+void Utils::print(auto x)
 {
     std::cout << x << std::endl;
 }
@@ -143,11 +147,11 @@ std::string Utils::getIsoTimeStr()
 }
 
 
-std::string Utils::get_ini_value(std::string const& section, std::string const& key)
+std::string Utils::getIniValue(std::string const& section, std::string const& key)
 {
     // Example:
     // std::string daysToKeepLogs;
-    // daysToKeepLogs = utils.get_ini_value("main", "daysToKeepLogs");
+    // daysToKeepLogs = stoi(utils.getIniValue("main", "daysToKeepLogs"));
 
     std::string value;
     std::string iniFilePath = this->getIniFilePath();
@@ -193,10 +197,10 @@ std::string Utils::get_ini_value(std::string const& section, std::string const& 
 }
 
 
-std::map<std::string, std::string> Utils::get_ini_section(std::string const& section)
+std::map<std::string, std::string> Utils::getIniSection(std::string const& section)
 {
     // Example:
-    // auto iniSection = utils.get_ini_section("main");
+    // auto iniSection = utils.getIniSection("main");
     // std::string daysToKeepLogs = iniSection.find("daysToKeepLogs")->second;
 
     std::string iniFilePath = this->getIniFilePath();
@@ -323,8 +327,12 @@ unsigned int Utils::getHash(const char* str, int h = 0)
 
 void Utils::log(const char *level, std::string_view msg)
 {
+    if(msg.empty())
+        msg = "NULL";
+
     Log log(Utils::getShowLogDebug(), Utils::getDaysToKeepLogFiles());
     unsigned int levelInt = this->getHash(level);
+    //unsigned int levelInt = Utils::getHash(level);
 
     switch(levelInt)
     {

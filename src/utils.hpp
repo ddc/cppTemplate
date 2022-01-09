@@ -51,13 +51,13 @@ class Utils
         static bool gzipFile(std::string&, std::string&);
         static const char* str2char(std::string);
         static bool isFileOlderThanXDays(std::string const&, int);
-        static void print(std::string_view);
+        static void print(auto);
 
         bool deleteFile(std::string&);
         void log(const char*, std::string_view);
         unsigned int getHash(const char*, int);
-        std::string get_ini_value(std::string const&, std::string const&);
-        std::map<std::string, std::string> get_ini_section(std::string const&);
+        std::string getIniValue(std::string const&, std::string const&);
+        std::map<std::string, std::string> getIniSection(std::string const&);
 };
 
 #endif

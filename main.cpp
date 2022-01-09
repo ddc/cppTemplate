@@ -20,11 +20,21 @@ int main(int argc, char **argv)
         }
 
         Utils utils;
-        daysToKeepLogFiles = stoi(utils.get_ini_value("main", "daysToKeepLogs"));
+        daysToKeepLogFiles = stoi(utils.getIniValue("main", "daysToKeepLogs"));
         utils.log("info", "Iniciando v" + Utils::getVersion());
 
         Sqlite sqlite;
+        std::string sql;
+        sql = "CREATE TABLE contacts (id INTEGER PRIMARY KEY, name CHAR[250]);";
+        sqlite.execute(sql);
 
+
+        sql = "insert into contacts (id, name) values (1, 'aaa');";
+        sqlite.execute(sql);
+
+
+        sql = "select * from contacts";
+        sqlite.select(sql);
 
 
 

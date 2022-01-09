@@ -22,10 +22,12 @@ class Sqlite
         Sqlite();
         ~Sqlite();
 
-
         std::string getSqliteFilePath() { return this->sqliteFilePath; }
         bool testSqliteConnection();
 
+        static int callback(void*, int, char**, char**);
+        void execute(std::string&);
+        void select(std::string&);
 
 
 };
