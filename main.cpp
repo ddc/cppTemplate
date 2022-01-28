@@ -28,10 +28,8 @@ int main(int argc, char **argv)
         sql = "CREATE TABLE contacts (id INTEGER PRIMARY KEY, name CHAR[250]);";
         sqlite.execute(sql);
 
-
         sql = "insert into contacts (id, name) values (1, 'aaa');";
         sqlite.execute(sql);
-
 
         sql = "select * from contacts";
         sqlite.select(sql);
