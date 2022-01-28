@@ -13,7 +13,9 @@ set(SOURCE_FILES
         src/log.cpp
         src/log.hpp
         src/databases/sqlite/sqlite.cpp
-        src/databases/sqlite/sqlite.hpp)
+        src/databases/sqlite/sqlite.hpp
+        src/databases/oracle/oracle.cpp
+        src/databases/oracle/oracle.hpp)
 
 find_package(Boost 1.77.0 COMPONENTS date_time filesystem system iostreams program_options serialization)
 if(Boost_FOUND)
