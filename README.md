@@ -1,9 +1,9 @@
-#Windows
+# Windows
 
-###Download and install msys2 from:
+### Download and install msys2 from:
 [msys2](https://repo.msys2.org/distrib/x86_64)
 
-###Intall pkgs:
+### Intall pkgs:
     pacman -Fy && pacman -Syuu
     pacman -S mingw-w64-x86_64-gcc
     pacman -S mingw-w64-x86_64-make
