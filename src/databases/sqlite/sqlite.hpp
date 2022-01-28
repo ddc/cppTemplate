@@ -11,12 +11,8 @@ class Sqlite
     private:
         std::string sqliteFilePath{};
 
-
         static std::string inline getSqliteFileName() { return SQLITE_FILENAME; }
         void setSqliteFilePath();
-
-
-
 
     public:
         Sqlite();
@@ -25,11 +21,8 @@ class Sqlite
         std::string getSqliteFilePath() { return this->sqliteFilePath; }
         bool testSqliteConnection();
 
-        static int callback(void*, int, char**, char**);
         void execute(std::string&);
         void select(std::string&);
-
-
 };
 
 #endif

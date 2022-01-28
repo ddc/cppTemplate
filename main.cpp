@@ -23,6 +23,7 @@ int main(int argc, char **argv)
         daysToKeepLogFiles = stoi(utils.getIniValue("main", "daysToKeepLogs"));
         utils.log("info", "Iniciando v" + Utils::getVersion());
 
+        /// SQLITE EXAMPLES
         Sqlite sqlite;
         std::string sql;
         sql = "CREATE TABLE contacts (id INTEGER PRIMARY KEY, name CHAR[250]);";
@@ -33,6 +34,11 @@ int main(int argc, char **argv)
 
         sql = "select * from contacts";
         sqlite.select(sql);
+
+        /// ORACLE EXAMPLES
+
+
+
 
 
 

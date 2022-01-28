@@ -36,6 +36,12 @@ Utils::~Utils()
 = default;
 
 
+void Utils::print(std::string_view msg)
+{
+    std::cout << msg << std::endl;
+}
+
+
 void Utils::setExecPath()
 {
     if(this->getIsWindows())
@@ -71,16 +77,6 @@ void Utils::setExecFileName()
         //std::size_t found = appPath.find_last_of(this->getSep());
         //this->setExecFileName(appPath.substr(0, found));
     }
-}
-
-
-//void Utils::print(std::string_view x)
-//{
-//    std::cout << x << std::endl;
-//}
-void Utils::print(auto x)
-{
-    std::cout << x << std::endl;
 }
 
 

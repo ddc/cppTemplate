@@ -6,13 +6,6 @@ Sqlite::Sqlite()
 {
     this->setSqliteFilePath();
     this->testSqliteConnection();
-
-
-
-
-
-
-
 }
 
 
@@ -69,7 +62,7 @@ void Sqlite::execute(std::string &sql)
         utils.log("error", sqlite3_errmsg(db));
     }
 
-    rc = sqlite3_exec(db, csql, Sqlite::callback, nullptr, &errMsg);
+    rc = sqlite3_exec(db, csql, nullptr, nullptr, &errMsg);
     if (rc != SQLITE_OK)
     {
         Utils utils;
@@ -114,28 +107,9 @@ void Sqlite::select(std::string &sql)
         //utils.print(id);
         //utils.print(name);
 
-        fprintf(stderr, "Id/name:  %i - %s.\n", sqlite3_column_int(stmt, 0)
-                                              ,sqlite3_column_text(stmt, 1));
+        fprintf(stderr, "Id/name:  %i - %s.\n", sqlite3_column_int(stmt, 0),
+                                                sqlite3_column_text(stmt, 1));
     }
 
     sqlite3_close(db);
-}
-
-
-//int Sqlite::callback(void *NotUsed, int argc, char **argv, char **azColName)
-//{
-//	int i;
-//	for(i=0; i<argc; i++)
-//		std::cout<<azColName[i]<<" = " << (argv[i] ? argv[i] : "NULL")<<"\n";
-//	std::cout<<"\n";
-//	return 0;
-//}
-
-int Sqlite::callback(void *data, int argc, char **argv, char **azColName){
-   int i;
-   fprintf(stderr, "%s: ", (const char*)data);
-   for(i=0; i<argc; i++)
-      printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
-   printf("\n");
-   return 0;
 }

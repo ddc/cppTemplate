@@ -51,7 +51,7 @@ class Utils
         static bool gzipFile(std::string&, std::string&);
         static const char* str2char(std::string);
         static bool isFileOlderThanXDays(std::string const&, int);
-        static void print(auto);
+        static void print(std::string_view);
 
         bool deleteFile(std::string&);
         void log(const char*, std::string_view);

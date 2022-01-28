@@ -161,7 +161,7 @@ void Log::removeOldLogs()
     {
         std::string curFilePath = file.path().string();
         std::string curFileExt = curFilePath.substr(curFilePath.find_last_of('.') + 1);
-        bool isFileOlderThanXDays = Utils::isFileOlderThanXDays(curFilePath, this->getDaysToKeep());
+        bool isFileOlderThanXDays = Utils::isFileOlderThanXDays(curFilePath, Log::getDaysToKeep());
 
         if(curFileExt == "gz" && fs::is_regular_file(file) && isFileOlderThanXDays)
             utils.deleteFile(curFilePath);
