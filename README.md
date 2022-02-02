@@ -1,4 +1,6 @@
 # Windows
+[<img src="https://img.shields.io/badge/cpp-17-blue.svg?style=plastic">](https://www.python.org/downloads)
+[<img src="https://img.shields.io/github/license/ddc/cppTemplate.svg?style=plastic">](https://github.com/ddc/cppTemplate/blob/master/LICENSE)
 
 ### Download and install msys2 from:
 [msys2](https://repo.msys2.org/distrib/x86_64)
